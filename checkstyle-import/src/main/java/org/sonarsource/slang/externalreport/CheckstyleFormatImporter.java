@@ -178,7 +178,14 @@ public class CheckstyleFormatImporter {
    * @return the RuleType defined by the given parameters.
    */
   protected RuleType ruleType(@Nullable String severity, String source) {
-    return "error".equals(severity) ? RuleType.BUG : RuleType.CODE_SMELL;
+    if ("gosec".equals(source)) {
+      return RuleType.VULNERABILITY;
+    }
+    if ("error".equals(severity) || "waning".equals(severity)) {
+      return RuleType.BUG;
+    }
+
+    return RuleType.CODE_SMELL;
   }
 
   /**
@@ -188,7 +195,18 @@ public class CheckstyleFormatImporter {
    * @return the Severity defined by the given parameters.
    */
   protected Severity severity(@Nullable String severity) {
-    return "info".equals(severity) ? Severity.MINOR : Severity.MAJOR;
+//    return "info".equals(severity) ? Severity.MINOR : Severity.MAJOR;
+
+    switch (severity) {
+      case "error":
+        return Severity.BLOCKER;
+      case "warning":
+        return Severity.MAJOR; // 或 Severity.MINOR/MAJOR
+      case "info":
+        return Severity.MINOR;
+      default:
+        return Severity.MAJOR;
+    }
   }
 
   /**
